@@ -14,3 +14,11 @@
 `sh report.sh`
 
 > To schedule the report generation, Please execute `sh setup.sh`
+
+### [TODO]
+
+* Docker environment
+
+* Environment preparation in `setup.sh`
+
+* Unit-test cases
