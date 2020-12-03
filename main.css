@@ -1,0 +1,140 @@
+body {
+    padding: 3%;
+}
+
+.interactive-button {
+    border: 2px solid lightgrey;
+    background-color: #fff;
+    font-size: 16px;
+    height: 2.5em;
+    width: 2.5em;
+    border-radius: 999px;
+    position: relative;
+}
+
+.interactive-button:focus {
+    outline: none;
+      box-shadow: none;
+}
+
+.interactive-button:hover {
+    cursor: pointer;
+    background-color: #E0E0E0;
+}
+
+.plus-button:before {
+    height: 1em;
+    width: 0.2em;
+    content: "";
+    display: block;
+    background-color: grey;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.plus-button:after {
+    height: 0.2em;
+    width: 1em;
+    content: "";
+    display: block;
+    background-color: grey;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.minus-button:after {
+    height: 0.2em;
+    width: 1em;
+    content: "";
+    display: block;
+    background-color: grey;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.interactive-button--small {
+    font-size: 12px;
+}
+
+.orderApplication {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 2%;
+}
+
+#productMenu {
+    margin-right: 2%;
+}
+
+#orderBlock {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 15%;
+    margin-right: 2%;
+}
+
+#CustomerIdentityBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-width: 15%;
+    margin-right: 2%;
+}
+
+#CustomerIdentityBlock div {
+    margin-left: -2%;
+}
+
+.sectionDescription {
+    display:inline-block;
+    margin-bottom: 1%;
+}
+
+table {
+    font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      text-align: center;
+}
+
+table td, table th{
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+table .invisibleTd {
+    border: 0px;
+}
+
+.productListSection {
+    margin-bottom: 2%;
+}
+
+.switchButton {
+    border-style: solid;
+    border-radius: 27%;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-top: .5%;
+    padding-bottom: .5%;
+    margin-top: 2%;
+    background-color: white;
+}
+
+.switchButton:hover {
+    background-color: #E0E0E0;
+    cursor: pointer;
+}
+
+.switchButton:focus {
+    outline: none;
+      box-shadow: none;
+}
