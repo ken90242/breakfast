@@ -1,0 +1,318 @@
+<html>
+<head>
+	<title>Urmart</title>
+	<link rel="icon" href="https://icons-for-free.com/iconfiles/png/512/basket+buy+cart+internet+online+shopping+icon-1320085878582343273.png">
+	<link rel="stylesheet" href="main.css">
+</head>
+<body>
+	<section class="orderApplication">
+		<select id="productMenu">
+			<option value="" disabled selected>Select Product</option>
+		</select>
+		<div id="orderBlock">
+			<input id="orderAmount" type="number" placeholder="數量">
+			<button class="plus-button interactive-button interactive-button--small" onclick="orderApply();"></button>
+		</div>
+		<div id="CustomerIdentityBlock">
+			<input id="customerId" type="number" placeholder="Customer ID">
+			<div>
+				<input id="is_vip" type="checkbox"/>
+				<label>是否為VIP身份</label>
+			</div>
+		</div>
+	</section>
+
+	<section class="productListSection">
+		<label class="sectionDescription">商品列表</label>
+		<table id="productTable">
+			<tr>
+				<th>Product ID</th>
+				<th>stock_pcs</th>
+				<th>price</th>
+				<th>shop_id</th>
+				<th>vip</th>
+			</tr>
+			<tbody id="tbody"></tbody>
+		</table>
+	</section>
+
+	<section>
+		<label class="sectionDescription">訂單記錄</label>
+		<table id="orderTable">
+			<tr>
+				<th>Order ID</th>
+				<th>product_id</th>
+				<th>qty</th>
+				<th>price</th>
+				<th>shop_id</th>
+				<th>Customer ID</th>
+			</tr>
+		</table>
+	</section>
+	<section>
+		<button id="showTopThreeButton" class="switchButton" onClick="showTop();">Top3</button>
+		<button id="showAllButton" class="switchButton" onClick="showAll();" style="display:none">All Products</button>
+	</section>
+
+	<script>
+		const host = "http://localhost:8000";
+
+		function showTop()
+		{
+			retrieveTopProducts(3).then((productList) => {
+				// TODO: need top qty amount!
+				document.getElementById("showTopThreeButton").style.display="none";
+				document.getElementById("showAllButton").style.display="block";
+
+				const productTable = document.getElementById("productTable");
+				for (let i=productTable.rows.length-1; i>0; --i) {
+					productTable.deleteRow(i);
+				}
+
+				productList.forEach((product) => {
+					insertInProductTable(product);
+				});
+			});
+		}
+
+		function showAll()
+		{
+			document.getElementById("showTopThreeButton").style.display="block";
+			document.getElementById("showAllButton").style.display="none";
+
+			const productTable = document.getElementById("productTable");
+			for (let i=productTable.rows.length-1; i>0; --i) {
+				productTable.deleteRow(i);
+			}
+
+			retrieveProductList().then((productList) => {	
+				productList.forEach((product) => {
+					insertInProductTable(product);
+				});
+			});
+		}
+
+		function orderApply()
+		{
+			orderParam = {
+				qty: parseInt(document.getElementById("orderAmount").value, 10),
+				customer_id: document.getElementById("customerId").value,
+				is_vip: document.getElementById("is_vip").checked,
+				product_id: document.getElementById("productMenu").value,
+			};
+
+			addOrder(orderParam)
+			.then((result) => {
+				if (result.error_reason) {
+					alert(result.error_reason)
+				} else {
+					insertInOrderTable(result);
+					updateOrderTableRowIndex();
+					bindAllOrderDeleteButton();
+
+					for (let i=productTable.rows.length-1; i>0; --i) {
+						productTable.deleteRow(i);
+					}
+					retrieveProductList().then((productList) => {
+						productList.forEach((product) => {
+							insertInProductTable(product);
+						});
+					})
+
+					alert("Order Created");
+				}
+			});
+			
+		}
+
+		function createOption(productId) {
+			const ele = document.createElement('option');
+			ele.text = `Product ${productId}`;
+			ele.value = productId;
+			return ele;
+		}
+
+		function createCheckBox(value, disabled=true) {
+			const ele = document.createElement('input');
+			ele.type = "checkbox";
+			ele.checked = value;
+			ele.disabled = disabled;
+
+			return ele;
+		}
+
+		function createMinusButton(productId) {
+			const ele = document.createElement("button");
+
+			ele.setAttribute("data-productId", productId)
+			ele.classList.add("minus-button")
+			ele.classList.add("interactive-button")
+			ele.classList.add("interactive-button--small");
+
+			return ele;
+		}
+
+		function insertInProductTable(product) {
+			const table = document.getElementById("productTable");
+			const row = table.insertRow();
+			['id', 'stock_pcs', 'price', 'shop', 'vip'].forEach((key) => {
+
+				const cell = row.insertCell();
+
+				if (key === 'shop') {
+					cell.innerHTML = product[key]["shop_id"];
+				}
+				else if (key === 'vip') {
+					cell.appendChild(createCheckBox(product[key]));
+				}
+				else {
+					cell.innerHTML = product[key];
+				}
+			});
+		}
+
+		function insertInOrderTable(order) {
+			const table = document.getElementById("orderTable");
+			const row = table.insertRow();
+			['id', 'product', 'qty', 'price', 'shop_id', 'customer_id'].forEach((key) => {
+				const cell = row.insertCell();
+				if (key === 'product') {
+					cell.innerHTML = order[key]["id"];
+				}
+				else if (key === "price") {
+					cell.innerHTML = order["product"][key];
+				}
+				else if (key === "shop_id") {
+					cell.innerHTML = order["product"]["shop"][key];
+				}
+				else {
+					cell.innerHTML = order[key];
+				}
+			});
+
+			const cell = row.insertCell();
+			cell.classList.add("invisibleTd");
+			cell.appendChild(createMinusButton(order['id']));
+		}
+
+		async function addOrder(orderParam)
+		{
+			const response = await fetch(`${host}/orders/`, {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(orderParam),
+			})
+
+			const order = await response.json();
+
+			return order;
+		}
+
+		async function deleteOrder(orderId)
+		{
+			const response = await fetch(`${host}/orders/${orderId}`, {
+				method: 'DELETE',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+			});
+			const result = await response.json();
+			return result;
+		}
+
+		async function retrieveProductList()
+		{
+			const response = await fetch(`${host}/products/`);
+			const productList = await response.json();
+
+			return productList;
+		}
+
+		async function retrieveOrderList()
+		{
+			const response = await fetch(`${host}/orders/`);
+			const orderList = await response.json();
+
+			return orderList;
+		}
+
+		async function retrieveTopProducts(topNum)
+		{
+			const response = await fetch(`${host}/products/?top=${topNum}`);
+			const productList = await response.json();
+
+			return productList;
+		}
+
+		(function() {
+			retrieveOrderList().then((orders) => {
+				orders.forEach((order) => {
+					insertInOrderTable(order);
+				});
+				updateOrderTableRowIndex();
+				bindAllOrderDeleteButton();
+			});
+
+			retrieveProductList().then((productList) => {
+				productList.forEach((product) => {
+					insertInProductTable(product);
+					productMenu.appendChild(createOption(product["id"]));
+				});
+			})
+		})();
+
+		function updateOrderTableRowIndex()
+		{
+			const elements = document.getElementsByClassName("minus-button");
+
+			for (let i = 0; i < elements.length; i++) {
+				elements[i].setAttribute('data-index', i+1);
+			}
+		}
+
+		function triggerDelete() {
+			const orderId = this.getAttribute("data-productId");
+			const rowIndex = this.getAttribute("data-index");
+
+			deleteOrder(orderId).then((raw) => {
+				res = JSON.parse(raw);
+
+				document.getElementById("orderTable").deleteRow(rowIndex);
+				updateOrderTableRowIndex();
+				
+				// replenshiment reminder
+				for (let i=productTable.rows.length-1; i>0; --i) {
+					productTable.deleteRow(i);
+				}
+
+				retrieveProductList().then((productList) => {
+					productList.forEach((product) => {
+						insertInProductTable(product);
+					});
+				})
+
+				alert("Delete successfully");
+
+				if (res.start_available === true) {
+					alert(`Product ${res.product_id} restocked`);
+				}
+			})
+		}
+
+		function bindAllOrderDeleteButton()
+		{
+			const elements = document.getElementsByClassName("minus-button");
+
+			for (let i = 0; i < elements.length; i++) {
+				elements[i].removeEventListener('click', triggerDelete);
+				elements[i].addEventListener('click', triggerDelete, false);
+			}
+		}
+
+	</script>
+</body>
+</html>
