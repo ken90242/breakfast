@@ -1,5 +1,8 @@
 # breakfast HW
 
+### Demo
+![Demo gif](https://github.com/ken90242/breakfast/blob/main/demo.gif)
+
 ### How to view the web console?
 
 1. Setup the environment django and django-rest-framework needed
