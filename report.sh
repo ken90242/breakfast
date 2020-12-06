@@ -5,10 +5,10 @@ AWK_PARSE_ERROR=3
 
 function exit_with_error()
 {
-    # $1: error code
-    # $2: error statement
-    echo "Failed to exectue '$2'"
-    exit $1
+    # $1: error statement
+    # $2: error code
+    echo "Failed to exectue: $1"
+    exit $2
 }
 
 
@@ -26,4 +26,4 @@ echo "${RESULT}" | awk '
     {
         print $1","$2","$3","$4
     }
-    ' > report.csv || exit_with_error "awk error" "${AWK_PARSE_ERROR}"
+    ' > report.csv || exit_with_error "awk commands" "${AWK_PARSE_ERROR}"
