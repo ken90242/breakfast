@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Install sqlite3
+echo -n "Installing sqlite3..."
+
+echo "Done"
+
+# Ensure sqlite3 is callable under global environment
+
 # Schedule task for generating report
 echo -n "Scheduling tasks..."
 GENERATE_REPORT_CMD="sh ${PWD}/report.sh"
@@ -18,3 +25,4 @@ echo "Done"
 
 # Display
 echo "Now, please open index.html."
+
